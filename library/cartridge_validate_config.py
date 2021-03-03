@@ -142,6 +142,7 @@ def validate_types(vars):
         'weight': int,
         'vshard_group': str,
         'cartridge_enable_tarantool_repo': bool,
+        'zone': str,
         'config': {
             'advertise_uri': str,
             'memtx_memory': int,

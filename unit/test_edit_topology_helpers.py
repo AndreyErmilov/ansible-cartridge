@@ -2,7 +2,7 @@ import unittest
 
 from library.cartridge_edit_topology import get_configured_replicasets
 from library.cartridge_edit_topology import get_edit_replicaset_params
-from library.cartridge_edit_topology import get_instances_to_expel
+from library.cartridge_edit_topology import get_instances_to_configure
 
 
 def call_get_configured_replicasets(hostvars, play_hosts=None):
@@ -104,49 +104,52 @@ class TestGetConfiguredReplicasets(unittest.TestCase):
             self.assertEqual(replicaset['vshard_group'], rpl_conf.get('vshard_group'))
 
 
-class TestGetInstancesToExpel(unittest.TestCase):
-    def test_get_instances_to_expel(self):
+class TestGetInstancesToConfigure(unittest.TestCase):
+    def get_instances_to_configure(self):
         hostvars = {
-            'instance-expelled-1': {  # expelled
+            'instance-expelled': {  # expelled
                 'replicaset_alias': 'replicaset-1',
                 'expelled': True,
             },
-            'instance-expelled-2': {  # expelled
+            'instance-expelled-zone': {  # expelled, with zone
                 'replicaset_alias': 'replicaset-1',
                 'expelled': True,
+                'zone': 'Hogwarts',
+            },
+            'instance-zone': {  # expelled, with zone
+                'replicaset_alias': 'replicaset-1',
+                'zone': 'Narnia',
+            },
+            'instance-1': {
+                'replicaset_alias': 'replicaset-1',
             },
             'instance-2': {
-                'replicaset_alias': 'replicaset-1',
-            },
-            'not-play-host': {  # not in play hosts
-                'expelled': True
-            },
-            'instance-4': {
                 'replicaset_alias': 'replicaset-1',
             },
             'instance-stateboard': {  # stateboard
                 'expelled': True,
                 'stateboard': True,
+                'zone': 'Mordor',
             },
         }
 
-        # found expelled instances
-        play_hosts = [
-            'instance-expelled-1', 'instance-2', 'instance-4', 'instance-stateboard', 'instance-expelled-2',
-        ]
+        # found instances to configure
+        play_hosts = hostvars.keys()
 
-        instances_to_expel = get_instances_to_expel(hostvars, play_hosts)
-        self.assertEqual(set(instances_to_expel), {
-            'instance-expelled-1', 'instance-expelled-2'
+        instances = get_instances_to_configure(hostvars, play_hosts)
+        self.assertEqual(instances, {
+            'instance-expelled': {'expelled': True},
+            'instance-expelled-zone': {'expelled': True, 'zone': 'Hogwarts'},
+            'instance-zone': {'zone': 'Narnia'},
         })
 
-        # not found expelled instances
+        # not found instances to configure
         play_hosts = [
-            'instance-2', 'instance-4', 'instance-stateboard'
+            'instance-1', 'instance-2', 'instance-stateboard'
         ]
 
-        instances_to_expel = get_instances_to_expel(hostvars, play_hosts)
-        self.assertEqual(len(instances_to_expel), 0)
+        instances = get_instances_to_configure(hostvars, play_hosts)
+        self.assertEqual(len(instances), 0)
 
 
 class TestGetEditReplicasetParams(unittest.TestCase):
