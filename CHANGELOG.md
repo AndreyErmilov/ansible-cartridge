@@ -22,6 +22,7 @@ to use the newest tag with new release
 - `cartridge_wait_buckets_discovery` parameter to wait for instance to discover buckets
 - `instance_discover_buckets_timeout` parameter to configure time in seconds
   to wait for instance to discover buckets
+- `cleanup` step to remove temporary files from specific list (#187)
 
 ### Changed
 
